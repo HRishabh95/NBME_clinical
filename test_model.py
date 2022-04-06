@@ -46,24 +46,46 @@ for ii,rows in nbme_test.iterrows():
     nbme_test.at[ii,'ids']=ids[ii]
 
 
+
+def get_data_location(data,sample):
+    return [m.start() for m in re.finditer(data, sample)]
+
+
+def get_start_location(ans_wordd,sample):
+    for ii in range(len(ans_wordd)):
+        if len(get_data_location(ans_wordd[ii],sample)) >0:
+            return get_data_location(ans_wordd[ii],sample),ii
+        else:
+            return [],ii
+
+def get_end_location(ans_wordd,sample):
+    for ii in range(len(ans_wordd)-1,-1,-1):
+        if len(get_data_location(ans_wordd[ii],sample)) >0:
+            return get_data_location(ans_wordd[ii],sample),ii
+        else:
+            [],ii
+
 location=[]
 for ii,rows in nbme_test.iterrows():
     sample=rows
     ans=generate_answer(sample)
     ans_words=ans.split()
     ans_len=len(ans)
-    spos=[m.start() for m in re.finditer(ans, sample.context)]
+    spos=[m.start() for m in re.finditer(ans, sample)]
     loca=''
     if len(spos)==0:
-        start=ans_words[0]
-        spos = [m.start() for m in re.finditer(start, sample.context)]
-        end = ans_words[-1]
-        epos = [m.start() for m in re.finditer(end, sample.context)]
-        for ii in spos:
-            for jj in epos:
-                if jj>ii:
-                    if ans_len-5<=jj-ii<=ans_len+5:
-                        loca+=f'''{ii} {jj};'''
+        spos,si = get_start_location(ans_words,sample)
+        epos,ei = get_end_location(ans_words,sample)
+        if len(epos)>0 and len(spos)>0:
+            if si==ei:
+                for spo in spos:
+                    loca += f'''{int(spo)} {int(spo)+len(ans_words[si])};'''
+            else:
+                for ii in spos:
+                    for jj in epos:
+                        if jj>ii:
+                            if ans_len-8<=jj-ii<=ans_len+8:
+                                loca+=f'''{ii} {jj};'''
     else:
         for spo in spos:
             loca+=f'''{spo} {int(spo)+ans_len};'''
