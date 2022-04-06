@@ -1,0 +1,6 @@
+transformers==4.1.1
+sentencepiece
+https://github.com/PyTorchLightning/pytorch-lightning/releases/download/1.2.6/pytorch-lightning-1.2.6.tar.gz
+pandas
+scikit-learn
+termcolor
